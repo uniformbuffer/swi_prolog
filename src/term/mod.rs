@@ -4,7 +4,6 @@ pub use term_refs::{TermRefs,TermAllocation};
 use crate::bindings::*;
 use crate::functor::Functor;
 use crate::frame::Frame;
-use std::rc::Rc;
 
 #[derive(Clone,Debug)]
 pub enum Term
@@ -24,7 +23,7 @@ impl Term
     pub fn retract(term: Term)->Term {Term::from(("retract",vec![term]))}
     pub fn head_body(term1: Term,term2: Term)->Term {Term::from((":-",vec![term1,term2]))}
 
-    pub fn write(&self,frame: &Rc<Frame>, allocation: &mut TermAllocation)
+    pub fn write(&self,frame: &Frame, allocation: &mut TermAllocation)
     {
         match self
         {

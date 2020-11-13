@@ -27,8 +27,14 @@ pub struct StaticSwiProlog
 }
 impl StaticSwiProlog
 {
-    pub fn new()->Self
+    pub(crate) fn new()->Self
     {
+        #[cfg(log)]
+        {
+            crate::logger::init_logger();
+            log::trace!("StaticSwiProlog created");
+        }
+
         initialise(Vec::new()).expect("Initialization Failed");
 
         let thread_count = Arc::new(AtomicU32::new(0));
@@ -79,7 +85,12 @@ impl StaticSwiProlog
 
 }
 impl Drop for StaticSwiProlog {
-    fn drop(&mut self) {halt();}
+    fn drop(&mut self) {
+        #[cfg(log)]
+        log::trace!("StaticSwiProlog destroyed");
+
+        halt();
+    }
 }
 impl std::ops::Deref for StaticSwiProlog {
     type Target = Runtime;

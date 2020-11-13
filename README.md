@@ -11,6 +11,7 @@ Supported features:
 - [X] Rusty safe interface
 - [X] Multithread
 - [X] Async interface
+- [] Remove welcome message
 
 Known bugs:
 - Running test crate, sometimes a sigabort/sigsev is throwed. This means that there is some multithreading error.

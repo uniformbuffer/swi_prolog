@@ -13,7 +13,7 @@ fn test_get_default_module()
 {
     let prolog = SwiProlog::new();
     let engine = prolog.get_engine();
-    engine.get_module(None::<&str>);
+    engine.get_module(None);
 }
 
 #[test]
@@ -21,7 +21,7 @@ fn test_get_module()
 {
     let prolog = SwiProlog::new();
     let engine = prolog.get_engine();
-    engine.get_module(Some("test module"));
+    engine.get_module(Some("test module".to_string()));
 }
 
 
@@ -48,7 +48,7 @@ fn test_frame_i32()
     assert!(Data::from(stack.get(2).unwrap()) == Data::from(3i32));
 }
 
-
+/*
 #[test]
 fn test_frame_string()
 {
@@ -94,8 +94,8 @@ fn test_frame_string_i32()
     assert!(Data::from(stack.get(1).unwrap()) == Data::from(2i32));
 }
 
-
-
+*/
+/*
 
 #[test]
 fn test_query()
@@ -105,10 +105,10 @@ fn test_query()
 
     let prolog = SwiProlog::new();
 
-    let assert = prolog.run(Some("test_query"),Term::assert(Term::from(("friend",vec![Term::from("person")]))));
+    let assert = prolog.run(Some("test_query".to_string()),Term::assert(Term::from(("friend",vec![Term::from("person")]))));
     prolog.block_on(assert).unwrap().unwrap();
 
-    let handle = prolog.query(Some("test_query"),Term::from(("friend",vec![Term::from(())])));
+    let handle = prolog.query(Some("test_query".to_string()),Term::from(("friend",vec![Term::from(())])));
     let result = prolog.block_on(handle).unwrap().unwrap();
 
     assert!(result.len() == 1);
@@ -124,10 +124,10 @@ fn test_load_file_runtime()
 
     let prolog = SwiProlog::new();
 
-    let assert = prolog.run(Some("test_load_file_runtime"),Term::from(("load_files",vec![Term::from("modulo")])));
+    let assert = prolog.run(Some("test_load_file_runtime".to_string()),Term::from(("load_files",vec![Term::from("modulo")])));
     prolog.block_on(assert).unwrap().unwrap();
 
-    let handle = prolog.query(Some("test_load_file_runtime"),Term::from(("friend",vec![Term::from(())])));
+    let handle = prolog.query(Some("test_load_file_runtime".to_string()),Term::from(("friend",vec![Term::from(())])));
     let result = prolog.block_on(handle).unwrap().unwrap();
 
 
@@ -136,6 +136,7 @@ fn test_load_file_runtime()
     assert!(result.get(1).unwrap() == &vec![Data::from("person2")]);
     assert!(result.get(2).unwrap() == &vec![Data::from("person3")]);
 }
+*/
 
 /*
 #[test]

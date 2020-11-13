@@ -4,13 +4,12 @@ use crate::data::Data;
 use crate::predicate::Predicate;
 use crate::term::Term;
 use crate::frame::Frame;
-use std::rc::Rc;
 
 pub struct Query;
 impl Query
 {
 
-    pub fn query(frame: &Rc<Frame>,module: Module,term: Term)->Result<Vec<Vec<Data>>,String>
+    pub fn query(frame: &Frame,module: Module,term: Term)->Result<Vec<Vec<Data>>,String>
     {
         //Getting predicate from root term
         let (predicate,args) = match &term
@@ -49,7 +48,7 @@ impl Query
             Err(exception)=>Err(exception)
         }
     }
-    pub fn run(frame: &Rc<Frame>,module: Module,term: Term)->Result<bool,String>
+    pub fn run(frame: &Frame,module: Module,term: Term)->Result<bool,String>
     {
         //Getting predicate from root term
         let (predicate,args) = match &term

@@ -11,6 +11,7 @@
 extern crate lazy_static;
 extern crate tokio;
 
+
 mod bindings;
 mod data;
 mod predicate;
@@ -28,4 +29,7 @@ pub use term::Term;
 
 #[cfg(test)]
 mod test;
+
+#[cfg(logger)]
+mod logger;
 

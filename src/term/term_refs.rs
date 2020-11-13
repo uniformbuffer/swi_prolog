@@ -1,26 +1,23 @@
 use crate::bindings::*;
 use crate::data::Data;
-use crate::frame::Frame;
-use std::rc::Rc;
+use std::marker::PhantomData;
 
-pub struct TermRefs
+pub struct TermRefs<'a>
 {
     allocations: Vec<TermAllocation>,
-    parent_frame: Rc<Frame>
-
+    phantom: PhantomData<&'a usize>
 }
-impl TermRefs
+impl<'a> TermRefs<'a>
 {
-    pub fn new(parent: Rc<Frame>,size: usize)->Self
+    pub fn new(size: usize)->Self
     {
         let root = new_term_refs(size);
         let mut allocations = Vec::new();
         for i in 0..size {allocations.push(TermAllocation(root+i));}
-        //println!("TermRefs created: {}",root);
         Self
         {
-            parent_frame: parent,
-            allocations: allocations
+            allocations: allocations,
+            phantom: PhantomData
         }
     }
 
@@ -37,7 +34,7 @@ impl<'a> Drop for TermRefs<'a> {
     }
 }
 */
-impl std::ops::Deref for TermRefs {
+impl<'a> std::ops::Deref for TermRefs<'a> {
     type Target = TermT;
     fn deref(&self) -> &Self::Target {&*self.allocations.get(0).unwrap()}
 }
