@@ -29,11 +29,10 @@ impl StaticSwiProlog
 {
     pub(crate) fn new()->Self
     {
-        #[cfg(log)]
-        {
-            crate::logger::init_logger();
-            log::trace!("StaticSwiProlog created");
-        }
+        #[cfg(feature = "logger")]
+        crate::logger::init_logger();
+        #[cfg(feature = "logger")]
+        log::trace!("StaticSwiProlog created");
 
         initialise(Vec::new()).expect("Initialization Failed");
 
@@ -88,6 +87,8 @@ impl Drop for StaticSwiProlog {
     fn drop(&mut self) {
         #[cfg(log)]
         log::trace!("StaticSwiProlog destroyed");
+
+        {let _engines: Vec<Engine> = self.engine_pool.lock().unwrap().drain(..).collect();}
 
         halt();
     }

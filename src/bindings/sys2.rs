@@ -248,6 +248,11 @@ extern "C" {
     pub fn PL_term_type(term: TermT) -> ::std::os::raw::c_int;
 }
 
+pub fn is_variable(term: TermT)->bool {unsafe{PL_is_variable(term) != 0}}
+extern "C" {
+    pub fn PL_is_variable(term: TermT) -> std::os::raw::c_int;
+}
+
 
 /***** Getters *****/
 pub fn get_bool(term: TermT) -> Option<bool>
@@ -293,6 +298,9 @@ extern "C" {
 
 pub fn get_string(term: TermT) -> Option<String>
 {
+    //let atom = get_atom(term);
+    //Some(atom_chars(atom))
+
     let mut tmp = std::ptr::null_mut();
     let mut len = 0;
     if unsafe{PL_get_string(term,&mut tmp,&mut len)} == 1 {Some(unsafe{CString::from_raw(tmp)}.into_string().unwrap())}
@@ -306,18 +314,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 
-pub fn get_atom_chars(term: TermT) -> Option<String>
-{
-    let mut tmp = std::ptr::null_mut();
-    if unsafe{PL_get_atom_chars(term,&mut tmp)} == 1 {Some(unsafe{CString::from_raw(tmp)}.into_string().unwrap())}
-    else {None}
-}
-extern "C" {
-    pub fn PL_get_atom_chars(
-        t: TermT,
-        a: *mut *mut ::std::os::raw::c_char,
-    ) -> ::std::os::raw::c_int;
-}
+
 
 pub fn get_functor(term: TermT) -> Option<Functor>
 {
@@ -350,9 +347,13 @@ extern "C" {
     pub fn PL_put_float(t: TermT, f: f64) -> ::std::os::raw::c_int;
 }
 
-pub fn put_string(term: TermT,value: String){unsafe{PL_put_atom_chars(term,CString::new(value.as_str()).unwrap().as_ptr())};}
+pub fn put_string(term: TermT,value: String){
+    //let atom = new_atom(value.as_str());
+    //put_atom(term,atom);
+    unsafe{PL_put_string_chars(term,CString::new(value.as_str()).unwrap().as_ptr())};
+}
 extern "C" {
-    pub fn PL_put_atom_chars(t: TermT,chars: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+    pub fn PL_put_string_chars(t: TermT,chars: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 
 pub fn put_variable(term: TermT){unsafe{PL_put_variable(term)};}
@@ -360,6 +361,13 @@ extern "C" {
     pub fn PL_put_variable(t: TermT) -> ::std::os::raw::c_int;
 }
 
+pub fn cons_functor_v(term: TermT,functor: FunctorT, parameters: TermT)
+{
+    unsafe{PL_cons_functor_v(term,functor,parameters)};
+}
+extern "C" {
+    pub fn PL_cons_functor_v(term: TermT, functor: FunctorT, parameters: TermT) -> ::std::os::raw::c_int;
+}
 
 /***** Functor *****/
 pub fn new_functor<'a>(name: impl Into<&'a str>, ariety: usize)->FunctorT
@@ -386,14 +394,6 @@ pub fn functor_arity(functor: FunctorT)->usize
 }
 extern "C" {
     pub fn PL_functor_arity_sz(f: FunctorT) -> usize;
-}
-
-pub fn cons_functor_v(functor: FunctorT, parameters: TermT, term: TermT)
-{
-    unsafe{PL_cons_functor_v(term,functor,parameters)};
-}
-extern "C" {
-    pub fn PL_cons_functor_v(h: TermT, fd: FunctorT, a0: TermT) -> ::std::os::raw::c_int;
 }
 
 /***** Predicate *****/
@@ -427,6 +427,36 @@ pub fn new_atom<'a>(value: impl Into<&'a str>) -> AtomT
 }
 extern "C" {
     pub fn PL_new_atom(s: *const ::std::os::raw::c_char) -> AtomT;
+}
+
+pub fn put_atom(term: TermT, atom: AtomT)
+{
+    unsafe{PL_put_atom(term,atom)};
+}
+extern "C" {
+    pub fn PL_put_atom(term: TermT, atom: AtomT) -> ::std::os::raw::c_int;
+}
+pub fn get_atom(term: TermT)->AtomT
+{
+    let mut atom = 0;
+    unsafe{PL_get_atom(term,&mut atom)};
+    return atom;
+}
+extern "C" {
+    pub fn PL_get_atom(t: TermT, a: *mut AtomT) -> ::std::os::raw::c_int;
+}
+
+pub fn get_atom_chars(term: TermT) -> Option<String>
+{
+    let mut tmp = std::ptr::null_mut();
+    if unsafe{PL_get_atom_chars(term,&mut tmp)} == 1 {Some(unsafe{CString::from_raw(tmp)}.into_string().unwrap())}
+    else {None}
+}
+extern "C" {
+    pub fn PL_get_atom_chars(
+        t: TermT,
+        a: *mut *mut ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
 }
 
 /***** Query *****/

@@ -1,6 +1,9 @@
 mod term_refs;
 pub use term_refs::{TermRefs,TermAllocation};
 
+//mod term_refs_chain;
+//pub use term_refs_chain::TermRefsChain;
+
 use crate::bindings::*;
 use crate::functor::Functor;
 use crate::frame::Frame;
@@ -44,6 +47,36 @@ impl Term
             //unknown=>panic!("Unsupported Data: {:#?}",unknown)
         }
     }
+
+
+/*
+    pub fn write(&self,term_refs: &mut TermRefs,mut offset: usize)->usize
+    {
+        match self
+        {
+            Self::Bool(value)=>{put_bool(**term_refs.get(offset).unwrap(),*value);return offset+1;}
+            Self::I32(value)=>{put_i32(**term_refs.get(offset).unwrap(),*value);return offset+1;}
+            Self::I64(value)=>{put_i64(**term_refs.get(offset).unwrap(),*value);return offset+1;}
+            Self::F64(value)=>{put_f64(**term_refs.get(offset).unwrap(),*value);return offset+1;}
+            Self::String(value)=>{put_string(**term_refs.get(offset).unwrap(),value.clone());return offset+1;}
+            Self::Variable=>{put_variable(**term_refs.get(offset).unwrap());return offset+1;}
+            Self::Predicate(name,terms)=>
+            {
+                let compound_offset = offset;
+                for i in 0..terms.len()
+                {
+                    offset = terms.get(i).unwrap().write(term_refs,offset);
+                }
+
+                let functor = Functor::new(name.as_str(),terms.len());
+                cons_functor_v(*functor,*terms_allocation,**allocation);
+
+                return offset+1;
+            }
+            //unknown=>panic!("Unsupported Data: {:#?}",unknown)
+        }
+    }
+    */
 }
 
 impl From<String> for Term {fn from(value: String) -> Self {Self::String(value)}}

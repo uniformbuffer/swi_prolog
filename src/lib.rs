@@ -30,6 +30,5 @@ pub use term::Term;
 #[cfg(test)]
 mod test;
 
-#[cfg(logger)]
+#[cfg(feature = "logger")]
 mod logger;
-

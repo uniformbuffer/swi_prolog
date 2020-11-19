@@ -48,7 +48,7 @@ fn test_frame_i32()
     assert!(Data::from(stack.get(2).unwrap()) == Data::from(3i32));
 }
 
-/*
+
 #[test]
 fn test_frame_string()
 {
@@ -59,19 +59,20 @@ fn test_frame_string()
     let engine = prolog.get_engine();
     let frame = engine.get_frame();
 
-    let args = vec![Term::from("data1"),Term::from("data2"),Term::from("data3")];
+    let args = vec![Term::from("data1")];
 
-    let mut stack = frame.create_term_refs(args.len()).unwrap();
+    let stack = frame.allocate_and_write(args).unwrap();
+    /*
     for i in 0..args.len() {
         let term = args.get(i).unwrap();
         term.write(&frame,stack.get_mut(i).unwrap());
     }
-
-    assert!(Data::from(stack.get(0).unwrap()) == Data::from("data1"));
-    assert!(Data::from(stack.get(1).unwrap()) == Data::from("data2"));
-    assert!(Data::from(stack.get(2).unwrap()) == Data::from("data3"));
+    */
+    //assert!(Data::from(stack.get(0).unwrap()) == Data::from("data1"));
+    //assert!(Data::from(stack.get(1).unwrap()) == Data::from("data2"));
+    //assert!(Data::from(stack.get(2).unwrap()) == Data::from("data3"));
 }
-
+/*
 #[test]
 fn test_frame_string_i32()
 {
@@ -93,7 +94,6 @@ fn test_frame_string_i32()
     assert!(Data::from(stack.get(0).unwrap()) == Data::from("data1"));
     assert!(Data::from(stack.get(1).unwrap()) == Data::from(2i32));
 }
-
 */
 /*
 

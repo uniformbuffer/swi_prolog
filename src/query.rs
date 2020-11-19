@@ -19,6 +19,7 @@ impl Query
         };
 
         // Store terms in term_refs and store indices of Term::Variable
+        /*
         let mut variable_indexes = Vec::new();
         let mut stack = frame.create_term_refs(args.len()).expect("Allocation requested on frame that is no more a leaf, allocations must be requested on the leaf Frame");
         for i in 0..args.len() {
@@ -30,14 +31,24 @@ impl Query
                 _=>()
             }
         }
+        */
+
+        let term_refs = match frame.allocate_and_write(vec![term])
+        {
+            Some(term_refs)=>term_refs,
+            None=>return Err(String::from("Failed to allocate terms"))
+        };
+
+
+        let variable_indexes = term_refs.collect_variable_indexes();
 
         //Open query and get the results from stored Term::Variable indices
-        let query_id = open_query(*module,*predicate, *stack);
+        let query_id = open_query(*module,*predicate, *term_refs);
         let mut results = Vec::new();
         while next_solution(query_id)
         {
             let mut result = Vec::new();
-            for i in &variable_indexes {result.push(Data::from(stack.get(*i).unwrap()));}
+            for i in &variable_indexes {result.push(Data::from(term_refs.get(*i).unwrap()));}
             results.push(result);
         }
 

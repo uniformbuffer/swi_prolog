@@ -4,17 +4,19 @@ use crate::frame::Frame;
 
 use crate::swi_prolog::ENGINE;
 
-#[cfg(log)]
+#[cfg(feature = "logger")]
 use std::sync::atomic::{AtomicU32,Ordering};
-#[cfg(log)]
+#[cfg(feature = "logger")]
 static ENGINE_COUNTER: AtomicU32 = AtomicU32::new(0);
-#[cfg(log)]
+#[cfg(feature = "logger")]
 static ENGINE_REFS_COUNTER: AtomicU32 = AtomicU32::new(0);
 
 
 pub struct Engine
 {
     handle: EngineT,
+    #[cfg(feature = "logger")]
+    id: u32
 }
 impl Engine
 {
@@ -23,9 +25,13 @@ impl Engine
         let engine = Self
         {
             handle: create_engine(),
+            #[cfg(feature = "logger")]
+            id: ENGINE_COUNTER.fetch_add(1,Ordering::Relaxed)
         };
-        #[cfg(log)]
-        log::trace!(target:"Engine created: {:?}", ENGINE_COUNTER.fetch_add(1,Ordering::Relaxed));
+
+
+        #[cfg(feature = "logger")]
+        log::trace!("Engine {} created", engine.id);
 
         engine
     }
@@ -33,8 +39,8 @@ impl Engine
 
 impl Drop for Engine {
     fn drop(&mut self) {
-        #[cfg(log)]
-        log::trace!(target:"Engine destroyed: {:?}", ENGINE_COUNTER.fetch_add(1,Ordering::Relaxed));
+        #[cfg(feature = "logger")]
+        log::trace!("Engine {} destroyed", self.id);
 
         destroy_engine(self.handle);
     }
@@ -49,15 +55,34 @@ unsafe impl Sync for Engine {}
 
 
 
-pub struct EngineRef<'a>(Option<Engine>,Option<Frame<'a>>);
+pub struct EngineRef<'a>(Option<Engine>,Option<Frame<'a>>,
+#[cfg(feature = "logger")]
+u32
+);
 impl<'a> EngineRef<'a>
 {
     pub fn new(engine: Engine)->Self {
         set_engine(*engine);
-        #[cfg(log)]
-        log::trace!("Engine ref created: {:?}", ENGINE_REFS_COUNTER.fetch_add(1,Ordering::Relaxed));
 
-        Self(Some(engine),Some(Frame::new()))
+        #[cfg(feature = "logger")]
+        let id = ENGINE_COUNTER.fetch_add(1,Ordering::Relaxed);
+
+        #[cfg(feature = "logger")]
+        log::trace!("Engine ref {} created on engine {}", id, engine.id);
+
+        let engine_ref = Self(
+            Some(engine),
+            Some(Frame::new(
+                #[cfg(feature = "logger")]
+                id
+            )),
+            #[cfg(feature = "logger")]
+            id
+        );
+
+
+
+        engine_ref
     }
 
     pub fn get_module(&self,name: Option<String>)->Module<'a>{
@@ -73,8 +98,9 @@ impl<'a> Drop for EngineRef<'a> {
     fn drop(&mut self)
     {
         {self.1.take().unwrap();}
-        #[cfg(log)]
-        log::trace!("Engine ref destroyed: {:?}", ENGINE_REFS_COUNTER.fetch_add(1,Ordering::Relaxed));
+
+        #[cfg(feature = "logger")]
+        log::trace!("Engine ref {} destroyed on engine {}",self.2,self.0.as_ref().unwrap().id);
 
         set_engine(std::ptr::null());
         ENGINE.put_engine(self.0.take().unwrap());
