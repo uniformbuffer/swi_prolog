@@ -12,34 +12,17 @@ impl Query
     pub fn query(frame: &Frame,module: Module,term: Term)->Result<Vec<Vec<Data>>,String>
     {
         //Getting predicate from root term
-        let (predicate,args) = match &term
+        let predicate = match &term
         {
-            Term::Predicate(name,args)=>(Predicate::new(&module,name.as_str(),args.len()),args),
+            Term::Predicate(name,args)=>Predicate::new(&module,name.as_str(),args.len()),
             _=>{return Err(String::from("Root term must be Term::Predicate"))}
         };
-
-        // Store terms in term_refs and store indices of Term::Variable
-        /*
-        let mut variable_indexes = Vec::new();
-        let mut stack = frame.create_term_refs(args.len()).expect("Allocation requested on frame that is no more a leaf, allocations must be requested on the leaf Frame");
-        for i in 0..args.len() {
-            let term = args.get(i).unwrap();
-            term.write(frame,stack.get_mut(i).unwrap());
-            match term
-            {
-                Term::Variable=>variable_indexes.push(i),
-                _=>()
-            }
-        }
-        */
 
         let term_refs = match frame.allocate_and_write(vec![term])
         {
             Some(term_refs)=>term_refs,
             None=>return Err(String::from("Failed to allocate terms"))
         };
-
-
         let variable_indexes = term_refs.collect_variable_indexes();
 
         //Open query and get the results from stored Term::Variable indices
@@ -62,18 +45,21 @@ impl Query
     pub fn run(frame: &Frame,module: Module,term: Term)->Result<bool,String>
     {
         //Getting predicate from root term
-        let (predicate,args) = match &term
+        let predicate = match &term
         {
-            Term::Predicate(name,args)=>(Predicate::new(&module,name.as_str(),args.len()),args),
+            Term::Predicate(name,args)=>Predicate::new(&module,name.as_str(),args.len()),
             _=>{return Err(String::from("Root term must be Term::Predicate"))}
         };
 
         // Store terms in term_refs
-        let mut stack = frame.create_term_refs(args.len()).expect("Allocation requested on frame that is no more a leaf, allocations must be requested on the leaf Frame");
-        for i in 0..args.len() {args.get(i).unwrap().write(frame,stack.get_mut(i).unwrap());}
+        let term_refs = match frame.allocate_and_write(vec![term])
+        {
+            Some(term_refs)=>term_refs,
+            None=>return Err(String::from("Failed to allocate terms"))
+        };
 
         //Call predicate and return the result
-        match call_predicate(*module,*predicate, *stack)
+        match call_predicate(*module,*predicate, *term_refs)
         {
             Ok(query_result)=>Ok(query_result.into()),
             Err(error)=>Err(error)

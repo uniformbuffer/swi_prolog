@@ -113,13 +113,14 @@ impl SwiProlog
     /**
     Make a query and return it's handle. The handle is async and results can be retrieved using SwiProlog::block_on function.
     */
-    pub fn query(&self, module_name: Option<String>,term: Term)->JoinHandle<Result<Vec<Vec<Data>>,String>>
+    pub fn query(&self, module_name: &Option<String>,term: Term)->JoinHandle<Result<Vec<Vec<Data>>,String>>
     {
+        let module_name_owned = module_name.clone();
         self.0.spawn(async move{
             let result = {
                 let engine = ENGINE.get_engine();
                 let frame = engine.get_frame();
-                let module = engine.get_module(module_name);
+                let module = engine.get_module(&module_name_owned);
                 Query::query(&frame,module,term)
             };
             result
@@ -128,13 +129,14 @@ impl SwiProlog
     /**
     Same as query function, but the query do not return data, only the result of the operation.
     */
-    pub fn run(&self, module_name: Option<String>,term: Term)->JoinHandle<Result<bool,String>>
+    pub fn run(&self, module_name: &Option<String>,term: Term)->JoinHandle<Result<bool,String>>
     {
+        let module_name_owned = module_name.clone();
         self.0.spawn(async move{
             let result = {
                 let engine = ENGINE.get_engine();
                 let frame = engine.get_frame();
-                let module = engine.get_module(module_name);
+                let module = engine.get_module(&module_name_owned);
                 Query::run(&frame,module,term)
             };
             result

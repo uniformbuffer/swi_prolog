@@ -97,8 +97,7 @@ impl<'a> Frame<'a>
                 for term in terms.iter() {local_offset = Self::write_term(term_refs,local_offset,term);}
 
                 let functor = Functor::new(name.as_str(),terms.len());
-
-                let functor_allocation = term_refs.get_mut(local_offset).unwrap();
+                let functor_allocation = term_refs.get_mut(local_offset).expect("Out of bound term allocation");
                 cons_functor_v(**functor_allocation,*functor,**term_refs.get_mut(offset).unwrap());
                 return local_offset+1;
             }
@@ -106,16 +105,18 @@ impl<'a> Frame<'a>
     }
     fn count_allocations(term: &Term)->usize
     {
-        match &term
+        let count = match &term
         {
             Term::Bool(_) | Term::I32(_) | Term::I64(_) | Term::F64(_) | Term::String(_) | Term::Variable =>1,
             Term::Predicate(_,terms)=>
             {
-                let mut count = 0;
+                let mut count = 1;//Predicate need 1 allocation the functor + parameters
                 for term in terms.iter() {count += Self::count_allocations(&term);}
                 count
             }
-        }
+        };
+        //println!("{} allocation for: {:#?}",count,term);
+        return count;
     }
 
 }

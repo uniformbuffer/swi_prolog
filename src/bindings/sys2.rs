@@ -307,14 +307,8 @@ pub fn get_string(term: TermT) -> Option<String>
     else {None}
 }
 extern "C" {
-    pub fn PL_get_string(
-        t: TermT,
-        s: *mut *mut ::std::os::raw::c_char,
-        len: *mut usize,
-    ) -> ::std::os::raw::c_int;
+    pub fn PL_get_string(term: TermT,string: *mut *mut ::std::os::raw::c_char,len: *mut usize) -> std::os::raw::c_int;
 }
-
-
 
 pub fn get_functor(term: TermT) -> Option<Functor>
 {
@@ -350,10 +344,13 @@ extern "C" {
 pub fn put_string(term: TermT,value: String){
     //let atom = new_atom(value.as_str());
     //put_atom(term,atom);
-    unsafe{PL_put_string_chars(term,CString::new(value.as_str()).unwrap().as_ptr())};
+    unsafe{PL_put_atom_chars(term,CString::new(value.as_str()).unwrap().as_ptr())};
 }
 extern "C" {
-    pub fn PL_put_string_chars(t: TermT,chars: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+    pub fn PL_put_string_chars(term: TermT,chars: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn PL_put_atom_chars(term: TermT,chars: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 
 pub fn put_variable(term: TermT){unsafe{PL_put_variable(term)};}

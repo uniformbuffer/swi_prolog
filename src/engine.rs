@@ -85,7 +85,7 @@ impl<'a> EngineRef<'a>
         engine_ref
     }
 
-    pub fn get_module(&self,name: Option<String>)->Module<'a>{
+    pub fn get_module(&self,name: &Option<String>)->Module<'a>{
         match name
         {
             Some(name)=>Module::new(new_module(name.as_str())),
